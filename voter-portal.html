@@ -212,6 +212,8 @@
           <input id="mobile" placeholder="10-digit number" maxlength="10">
         </div>
       </div>
+      <label for="email">Email ID</label>
+      <input id="email" type="email" placeholder="name@example.com">
       <label for="aadhaar">Aadhaar number</label>
       <input id="aadhaar" placeholder="12-digit number, e.g. 1234 5678 9012" maxlength="14">
       <label for="familyMembers">Family members (one per line, with relation)</label>
@@ -308,6 +310,7 @@ function registerVoter() {
   const address = document.getElementById('address').value.trim();
   const state = document.getElementById('state').value.trim();
   const mobile = document.getElementById('mobile').value.trim();
+  const email = document.getElementById('email').value.trim();
   const aadhaarRaw = document.getElementById('aadhaar').value.replace(/\s/g, '');
   const familyRaw = document.getElementById('familyMembers').value.trim();
   const citizenDeclared = document.getElementById('citizenDeclare').checked;
@@ -326,6 +329,10 @@ function registerVoter() {
     msg.className = 'msg err'; msg.textContent = 'Mobile number must be exactly 10 digits, or left blank.';
     return;
   }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.className = 'msg err'; msg.textContent = 'Please enter a valid email ID.';
+    return;
+  }
   if (!aadhaarRaw || !/^\d{12}$/.test(aadhaarRaw)) {
     msg.className = 'msg err'; msg.textContent = 'Please enter a valid 12-digit Aadhaar number.';
     return;
@@ -340,14 +347,14 @@ function registerVoter() {
   const list = loadVoters();
   const epic = genEpic(list);
   list.push({
-    epic, name, rel, dob, age, gender, address, state, mobile,
+    epic, name, rel, dob, age, gender, address, state, mobile, email,
     aadhaar: aadhaarRaw, family, citizen: true,
     registered: new Date().toISOString().slice(0,10)
   });
   saveVoters(list);
 
   msg.className = 'msg ok'; msg.textContent = `Registered successfully. EPIC number: ${epic}`;
-  ['fullName','relName','dob','address','state','mobile','aadhaar','familyMembers'].forEach(id => document.getElementById(id).value = '');
+  ['fullName','relName','dob','address','state','mobile','email','aadhaar','familyMembers'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('gender').value = '';
   document.getElementById('citizenDeclare').checked = false;
   renderRecords();
@@ -376,6 +383,7 @@ function doSearch() {
         <dt>Relative's name</dt><dd>${escapeHtml(v.rel || '—')}</dd>
         <dt>Age</dt><dd>${v.age}</dd>
         <dt>Gender</dt><dd>${escapeHtml(v.gender)}</dd>
+        <dt>Email ID</dt><dd>${escapeHtml(v.email || '—')}</dd>
         <dt>Aadhaar number</dt><dd>${maskAadhaar(v.aadhaar)}</dd>
         <dt>Family members</dt><dd>${v.family && v.family.length ? `<ul class="fam-list">${v.family.map(f => `<li>${escapeHtml(f)}</li>`).join('')}</ul>` : '—'}</dd>
         <dt>Address</dt><dd>${escapeHtml(v.address)}</dd>
